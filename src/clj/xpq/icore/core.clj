@@ -14,3 +14,13 @@
           (recur threaded (next forms)))
         x))))
 
+
+
+(defmacro defn-let [& elems]
+  (loop [before `(), after elems]
+    (if (vector? (first after))
+      ()
+      (recur (next after) (conj before (first elems))))))
+
+
+
