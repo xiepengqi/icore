@@ -1,4 +1,7 @@
-(ns clj.xpq.icore.core)
+(ns clj.xpq.icore.core
+  (:require [clojure.string :as str]
+            [clojure.java.io :as io])
+  (:import [java.io File]))
 
 (defmacro <-
   "reverse ->>"
@@ -38,8 +41,40 @@
              ~@(next after))))
       (recur (conj before (first after)) (next after)))))
 
+(defn blank? [str]
+  (if str
+    (if (string? str)
+      (= "" (str/trim str))
+      nil)
+    nil))
 
+(defn not-blank? [str]
+  (not (blank? str)))
 
+(defmulti exist? class)
+(defmethod exist? String [file-path]
+  (let [file (io/as-file file-path)]
+    (if file
+      (.exists file)
+      false)))
+(defmethod exist? File [file]
+  (if file
+    (.exists file)
+    false))
 
+(defprotocol FileSys
+  (child-files [file])
+  (dir? [file]))
+(extend-protocol FileSys
+  String
+  (child-files [file-path]
+    (child-files (io/as-file file-path)))
+  (dir? [file-path]
+    (dir? (io/as-file file-path)))
+  File
+  (child-files [file]
+    (.listFiles file))
+  (dir? [file]
+    (.isDirectory file)))
 
 
