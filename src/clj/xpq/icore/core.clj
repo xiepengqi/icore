@@ -77,4 +77,46 @@
   (dir? [file]
     (.isDirectory file)))
 
+(defn insert [coll index elem]
+  (loop [before [] after coll]
+    (if (= (count before) index)
+      (concat (conj before elem) after)
+      (recur (conj before (first after)) (next after)))))
 
+(defmacro ->n
+  "-> with num"
+  [x & forms]
+  (loop [x x, forms forms]
+    (if forms
+      (if (number? (first forms))
+        (let [num (first forms)
+              form (second forms)
+              threaded (if (seq? form)
+                         (with-meta (seq (insert form num x)) (meta form))
+                         (list form x))]
+          (recur threaded (next (next forms))))
+        (let [form (first forms)
+              threaded (if (seq? form)
+                         (with-meta `(~(first form) ~x ~@(next form)) (meta form))
+                         (list form x))]
+          (recur threaded (next forms))))
+      x)))
+
+(defmacro ->>n
+  "->> with num"
+  [x & forms]
+  (loop [x x, forms forms]
+    (if forms
+      (if (number? (first forms))
+        (let [num (first forms)
+              form (second forms)
+              threaded (if (seq? form)
+                         (with-meta (seq (insert form num x)) (meta form))
+                         (list form x))]
+          (recur threaded (next (next forms))))
+        (let [form (first forms)
+              threaded (if (seq? form)
+                         (with-meta `(~(first form) ~@(next form)  ~x) (meta form))
+                         (list form x))]
+          (recur threaded (next forms))))
+      x)))
