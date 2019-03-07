@@ -1,4 +1,4 @@
-(defproject clj.xpq/icore "0.1.1"
+(defproject clj.xpq/icore "0.1.2"
   :description "icore"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
